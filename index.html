@@ -4,19 +4,9 @@
     <meta charset="UTF-8">
     <title>Telegram Web App User Info</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-        }
-        img {
-            border-radius: 50%;
-            width: 100px;
-            height: 100px;
-        }
-        h1, p {
-            margin: 10px 0;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        img { border-radius: 50%; width: 100px; height: 100px; }
+        h1, p { margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -25,29 +15,20 @@
     <h2 id="userName"></h2>
     <p id="userUsername"></p>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Дождемся инициализации Telegram Web App
-        window.Telegram.WebApp.ready();
+        // Парсим URL-параметры
+        const params = new URLSearchParams(window.location.search);
+        const firstName = params.get("first_name") || "Имя отсутствует";
+        const lastName = params.get("last_name") || "";
+        const username = params.get("username") || "Username отсутствует";
 
-        const user = window.Telegram.WebApp.initDataUnsafe.user;
+        // Выводим данные
+        document.getElementById('userName').textContent = firstName + (lastName ? ' ' + lastName : '');
+        document.getElementById('userUsername').textContent = username !== "Username отсутствует" ? '@' + username : username;
 
-        if (user) {
-            // Устанавливаем аватар
-            if (user.photo_url) {
-                document.getElementById('userPhoto').src = user.photo_url;
-            } else {
-                document.getElementById('userPhoto').alt = "Аватар отсутствует";
-            }
-
-            // Имя
-            document.getElementById('userName').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
-
-            // Username
-            document.getElementById('userUsername').textContent = user.username ? '@' + user.username : 'Username отсутствует';
-        } else {
-            document.body.innerHTML = "<p>Информация о пользователе недоступна.</p>";
-        }
+        // Если хотите, можно добавить аватар через Telegram API
+        // document.getElementById('userPhoto').src = "https://t.me/i/userpic/320/" + user_id + ".jpg";
+        document.getElementById('userPhoto').alt = "Аватар отсутствует";
     </script>
 </body>
 </html>
