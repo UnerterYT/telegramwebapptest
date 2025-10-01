@@ -3,153 +3,103 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Telegram Web App — профиль</title>
-  <style>
-    :root{--bg:#0f1724;--card:#0b1220;--accent:#7c3aed}
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial}
-    body{background:linear-gradient(180deg,#071029 0%, #041021 100%);display:flex;align-items:center;justify-content:center;padding:24px;color:#e6eef8}
-    .card{width:100%;max-width:420px;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));border-radius:16px;padding:28px;box-shadow:0 8px 30px rgba(2,6,23,0.7);backdrop-filter: blur(6px);}
-    .header{display:flex;gap:16px;align-items:center}
-    .avatar{width:96px;height:96px;border-radius:50%;overflow:hidden;flex:0 0 96px;background:linear-gradient(135deg,var(--accent),#0ea5a4);display:grid;place-items:center;font-weight:700;font-size:30px;color:white;box-shadow:0 6px 18px rgba(124,58,237,0.25)}
-    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-    .meta{flex:1}
-    .name{font-size:20px;font-weight:700;margin:0 0 6px}
-    .username{margin:0;color:#9fb3d6}
-    .small{font-size:13px;color:#9fb3d6;margin-top:8px}
-    .not-telegram{padding:18px;background:rgba(255,255,255,0.02);border-radius:10px;margin-top:16px;text-align:center}
-    .actions{display:flex;gap:10px;margin-top:18px}
-    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
-    .btn.primary{background:linear-gradient(90deg,var(--accent),#06b6d4);color:white}
-    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#cfe6ff}
-    footer{margin-top:16px;font-size:12px;color:#7f9fc4;text-align:center}
-    .skeleton{height:14px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.06),rgba(255,255,255,0.02));border-radius:8px}
-  </style>
+  <title>Telegram WebApp — профиль</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+  <style>
+    body {
+      background: #0f1724;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+      max-width: 360px;
+      width: 100%;
+    }
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #7c3aed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 32px;
+      font-weight: bold;
+      color: #fff;
+      margin: 0 auto 16px;
+      overflow: hidden;
+    }
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .name {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 8px 0;
+    }
+    .username {
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .userid {
+      font-size: 13px;
+      color: #6b7280;
+    }
+  </style>
 </head>
 <body>
-  <main class="card" role="main">
-    <div class="header">
-      <div class="avatar" id="avatar">
-        <!-- avatar image or initials go here -->
-        <span id="avatar-initials">?</span>
-      </div>
-      <div class="meta">
-        <p class="name" id="fullname"><span class="skeleton" style="width:180px;height:20px;display:inline-block;border-radius:6px"></span></p>
-        <p class="username" id="username"><span class="skeleton" style="width:120px;height:14px;display:inline-block;border-radius:6px"></span></p>
-        <p class="small" id="userid"></p>
-      </div>
-    </div>
-
-    <div id="not-telegram" class="not-telegram" style="display:none">
-      Этот файл открыт не из Telegram Web App. Чтобы увидеть реальный аватар и имя — откройте его через кнопку "Открыть веб‑приложение" у вашего бота в Telegram.
-    </div>
-
-    <div class="actions">
-      <button class="btn primary" id="refreshBtn">Обновить данные</button>
-      <button class="btn ghost" id="copyBtn">Скопировать username</button>
-    </div>
-
-    <footer id="footer">Telegram Web App — красивый профиль</footer>
-  </main>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <div class="card">
+    <div class="avatar" id="avatar">?</div>
+    <div class="name" id="fullname">—</div>
+    <div class="username" id="username">—</div>
+    <div class="userid" id="userid"></div>
+  </div>
 
   <script>
-    // Утилиты
-    function setText(id, text){document.getElementById(id).textContent = text || ''}
-    function show(el, yes){el.style.display = yes ? '' : 'none'}
-
-    // Генерация инициалов
-    function initials(name, last){
-      const a = (name||'').trim().split(' ')[0] || '';
-      const b = (last||'').trim().split(' ')[0] || '';
-      const i1 = a.charAt(0) || '';
-      const i2 = b.charAt(0) || '';
+    function initials(first, last) {
+      const i1 = (first || '').charAt(0);
+      const i2 = (last || '').charAt(0);
       return (i1 + i2).toUpperCase() || '?';
     }
 
-    // Установка аватара (если есть photo_url) или инициалы
-    function setAvatar(imgEl, initialsEl, url, name, last){
-      if(url){
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = (name + ' ' + (last||'')).trim();
-        img.onload = () => {
-          imgEl.innerHTML = '';
-          imgEl.appendChild(img);
-        }
-        img.onerror = () => {
-          imgEl.textContent = initials(name,last);
-        }
+    function renderUser(user) {
+      const avatar = document.getElementById("avatar");
+      const fullname = document.getElementById("fullname");
+      const username = document.getElementById("username");
+      const userid = document.getElementById("userid");
+
+      fullname.textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+      username.textContent = user.username ? `@${user.username}` : "(без username)";
+      userid.textContent = `id: ${user.id}`;
+
+      if (user.photo_url) {
+        avatar.innerHTML = `<img src="${user.photo_url}" alt="avatar">`;
       } else {
-        imgEl.textContent = initials(name,last);
+        avatar.textContent = initials(user.first_name, user.last_name);
       }
     }
 
-    // Основная логика
-    function populateFromTelegram(){
-      const avatarEl = document.getElementById('avatar');
-      const fullnameEl = document.getElementById('fullname');
-      const usernameEl = document.getElementById('username');
-      const useridEl = document.getElementById('userid');
-      const notTelegram = document.getElementById('not-telegram');
+    window.addEventListener("DOMContentLoaded", () => {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
 
-      const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if(!tg){
-        show(notTelegram, true);
-        setText('fullname', '—');
-        setText('username', '—');
-        setText('userid', 'Открыто не в Telegram');
-        return;
+      const user = tg.initDataUnsafe?.user;
+      if (user) {
+        renderUser(user);
+      } else {
+        document.getElementById("fullname").textContent = "Открыто не в Telegram";
       }
-
-      // Inform the Telegram host that web app is ready
-      if(typeof tg.ready === 'function') try{ tg.ready() } catch(e){/*ignore*/}
-
-      // Telegram provides initDataUnsafe.user (parsed) — безопасно использовать для UI
-      const user = (tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
-
-      if(!user){
-        // Иногда данные доступны через tg.initData (не распарсенные). Попробуем использовать tg.initData
-        // Но не будем парсить signature — это необязательно для UI.
-        show(notTelegram, true);
-        setText('fullname', '—');
-        setText('username', '—');
-        setText('userid', 'Нет данных о пользователе');
-        return;
-      }
-
-      show(notTelegram, false);
-
-      const first = user.first_name || '';
-      const last = user.last_name || '';
-      const uname = user.username ? ('@' + user.username) : '(username отсутствует)';
-      const uid = user.id ? ('id: ' + user.id) : '';
-
-      setText('fullname', (first + (last ? (' ' + last) : '')).trim());
-      setText('username', uname);
-      setText('userid', uid);
-
-      // Попробуем получить URL аватарки. Поле может называться photo_url или photo or photo_url
-      const photoUrl = user.photo_url || user.photoUrl || user.photo || null;
-      setAvatar(avatarEl, document.getElementById('avatar-initials'), photoUrl, first, last);
-
-      // Поддержка кнопки "Копировать"
-      document.getElementById('copyBtn').onclick = async () => {
-        try{
-          await navigator.clipboard.writeText(user.username || '');
-          const old = document.getElementById('copyBtn').textContent;
-          document.getElementById('copyBtn').textContent = 'Скопировано!';
-          setTimeout(()=>document.getElementById('copyBtn').textContent = old,1200);
-        }catch(e){alert('Не удалось скопировать.')}
-      }
-    }
-
-    // Инициализация при загрузке
-    document.getElementById('refreshBtn').addEventListener('click', populateFromTelegram);
-    window.addEventListener('load', populateFromTelegram);
+    });
   </script>
 </body>
 </html>
-
-
